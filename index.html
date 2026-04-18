@@ -1,0 +1,395 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --gold:#B8860B;--gold-light:#D4A017;--sky:#1565C0;--sky-light:#1976D2;
+    --green:#2E7D32;--green-light:#388E3C;--red:#C62828;--orange:#E65100;
+    --bg:#EEF4FB;--card:#FFFFFF;--card2:#F0F6FF;--border:#B8D0EE;
+    --text:#0D2140;--text2:#3A5A80;--white:#fff;
+  }
+  body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);direction:rtl;min-height:100vh;overflow-x:hidden}
+  #app{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem}
+  .screen{display:none;width:100%;max-width:700px;animation:fadeIn .4s ease}
+  .screen.active{display:flex;flex-direction:column;align-items:center}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .logo{font-size:2.8rem;font-weight:900;color:#1565C0;margin-bottom:.3rem;text-align:center}
+  .subtitle{font-size:1rem;color:var(--text2);text-align:center;margin-bottom:2rem}
+  .card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:1.5rem;width:100%;box-shadow:0 2px 12px rgba(21,101,192,.08)}
+  label{font-size:.95rem;color:var(--text2);display:block;margin-bottom:.4rem;font-weight:500}
+  input,select{width:100%;background:#F5F9FF;border:1.5px solid var(--border);border-radius:10px;padding:.7rem 1rem;font-size:1rem;color:var(--text);font-family:'Tajawal',sans-serif;margin-bottom:1rem;outline:none}
+  input:focus,select:focus{border-color:var(--sky-light);background:#fff}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 2rem;border-radius:12px;font-size:1.05rem;font-weight:700;font-family:'Tajawal',sans-serif;border:none;cursor:pointer;transition:all .2s;width:100%;margin-top:.5rem}
+  .btn-primary{background:var(--sky);color:#fff}
+  .btn-primary:hover{background:var(--sky-light);transform:translateY(-1px)}
+  .btn-gold{background:linear-gradient(135deg,#F5C842,#D4A017);color:#3a1e00}
+  .btn-gold:hover{filter:brightness(1.08)}
+  .btn-green{background:var(--green);color:#fff}
+  .btn-red{background:#C62828;color:#fff}
+  .btn-sm{padding:.5rem 1.2rem;font-size:.9rem;width:auto;border-radius:8px}
+  .progress-bar{width:100%;height:8px;background:#D6E6F7;border-radius:4px;margin:.5rem 0 1.5rem;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--sky-light),#42A5F5);border-radius:4px;transition:width .4s}
+  .timer-ring{position:relative;display:flex;align-items:center;justify-content:center;width:70px;height:70px;flex-shrink:0}
+  .timer-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+  .timer-num{font-size:1.4rem;font-weight:900;z-index:1;color:var(--sky)}
+  .timer-num.warn{color:var(--orange)}
+  .timer-num.danger{color:var(--red);animation:pulse .5s infinite alternate}
+  @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.15)}}
+  .word-display{font-size:3.5rem;font-weight:900;text-align:center;letter-spacing:.3rem;margin:1rem 0;color:#0D2140}
+  .haraka{color:#D4A017;font-size:2.5rem}
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;width:100%;margin-top:1rem}
+  .option-btn{background:#F0F6FF;border:2px solid #B8D0EE;border-radius:12px;padding:1rem;font-size:1.4rem;font-weight:700;font-family:'Tajawal',sans-serif;color:#0D2140;cursor:pointer;transition:all .2s;text-align:center}
+  .option-btn:hover{border-color:var(--sky-light);background:#DCEEFF;color:#0D2140}
+  .option-btn.correct{border-color:var(--green-light);background:#C8E6C9;color:#1B5E20;animation:pop .3s}
+  .option-btn.wrong{border-color:var(--red);background:#FFCDD2;color:#7f0000;animation:shake .3s}
+  @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .badge{display:inline-block;padding:.25rem .8rem;border-radius:999px;font-size:.85rem;font-weight:700}
+  .badge-gold{background:#FFF3CD;color:#7a5c00;border:1px solid #D4A017}
+  .badge-sky{background:#DCEEFF;color:#0D47A1;border:1px solid #90CAF9}
+  .badge-green{background:#C8E6C9;color:#1B5E20;border:1px solid #81C784}
+  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid #D6E6F7}
+  .stat-row:last-child{border:none}
+  .stars{font-size:1.8rem;letter-spacing:.3rem;text-align:center;margin:.5rem 0}
+  .level-badge{font-size:1.1rem;font-weight:700;padding:.4rem 1.2rem;border-radius:999px;display:inline-block;margin-bottom:.5rem}
+  .feedback-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.5rem;font-weight:900;padding:1rem 2.5rem;border-radius:16px;z-index:100;animation:popFade 1s forwards;pointer-events:none}
+  .feedback-overlay.correct{background:rgba(46,125,50,.92);color:#fff}
+  .feedback-overlay.wrong{background:rgba(198,40,40,.92);color:#fff}
+  @keyframes popFade{0%{opacity:0;transform:translate(-50%,-60%)}30%{opacity:1;transform:translate(-50%,-50%)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-40%)}}
+  .top-bar{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:1rem}
+  .score-chip{display:flex;align-items:center;gap:.5rem;background:#fff;border:1.5px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.9rem;font-weight:700;color:var(--text);box-shadow:0 1px 4px rgba(21,101,192,.08)}
+  .score-chip span{color:var(--gold)}
+  .q-type-label{font-size:.9rem;color:var(--text2);text-align:center;margin-bottom:.3rem;font-weight:500}
+  .synthesis-input{font-size:2rem;text-align:center;letter-spacing:.2rem;border-radius:12px;border:2px solid var(--border);padding:.6rem 1rem;background:#F5F9FF;color:var(--text);font-family:'Tajawal',sans-serif;width:180px;margin:.5rem auto;display:block}
+  .synthesis-input:focus{border-color:var(--gold-light)}
+  .letter-chips{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin:1rem 0}
+  .letter-chip{background:#DCEEFF;border:2px solid #90CAF9;border-radius:10px;padding:.5rem 1.1rem;font-size:1.5rem;font-weight:700;cursor:pointer;transition:all .2s;color:#0D47A1}
+  .letter-chip:hover{background:var(--sky);color:#fff;border-color:var(--sky)}
+  .letter-chip.used{opacity:.3;pointer-events:none}
+  .section-title{font-size:1rem;font-weight:700;color:var(--text2);margin:.8rem 0 .4rem;text-align:right}
+  .qa-row{display:flex;align-items:center;justify-content:space-between;background:#F5F9FF;border-radius:10px;padding:.6rem 1rem;margin:.3rem 0;color:var(--text)}
+  .qa-correct{border-right:3px solid var(--green-light)}
+  .qa-wrong{border-right:3px solid var(--red)}
+</style>
+
+<div id="app">
+
+<div class="screen active" id="screen-login">
+  <div class="logo">🔤 عالم الكلمات</div>
+  <div class="subtitle">لعبة تعليمية | الكلمات الثلاثية وحركاتها</div>
+  <div class="card" style="max-width:420px;margin:0 auto">
+    <label>اسم الطالب</label>
+    <input type="text" id="inp-name" placeholder="اكتب اسمك هنا...">
+    <label>الصف الدراسي</label>
+    <select id="inp-grade">
+      <option value="">اختر الصف...</option>
+      <option>الصف الأول</option>
+      <option>الصف الثاني</option>
+      <option>الصف الثالث</option>
+    </select>
+    <button class="btn btn-gold" onclick="startAssessment()">ابدأ التقييم الأولي ⚡</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-assess">
+  <div style="width:100%;max-width:600px">
+    <div class="top-bar">
+      <div class="score-chip">📊 التقييم الأولي</div>
+      <div class="timer-ring">
+        <svg width="70" height="70" viewBox="0 0 70 70">
+          <circle cx="35" cy="35" r="30" fill="none" stroke="#D6E6F7" stroke-width="6"/>
+          <circle id="assess-timer-arc" cx="35" cy="35" r="30" fill="none" stroke="#1976D2" stroke-width="6" stroke-dasharray="188.5" stroke-dashoffset="0" stroke-linecap="round"/>
+        </svg>
+        <span class="timer-num" id="assess-timer-num">15</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="assess-progress" style="width:0%"></div></div>
+    <div class="card">
+      <div class="q-type-label" id="assess-q-type"></div>
+      <div class="word-display" id="assess-word"></div>
+      <div class="options-grid" id="assess-options"></div>
+      <div style="margin-top:1rem;text-align:center;font-size:.85rem;color:var(--text2)" id="assess-counter"></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-result">
+  <div style="width:100%;max-width:550px">
+    <div class="logo" style="font-size:2rem;margin-bottom:.3rem" id="result-name"></div>
+    <div class="subtitle" id="result-grade"></div>
+    <div class="card" style="margin-bottom:1rem">
+      <div style="text-align:center;margin-bottom:1rem">
+        <div class="stars" id="result-stars"></div>
+        <div class="level-badge" id="result-level-badge"></div>
+        <div style="font-size:.9rem;color:var(--text2)" id="result-level-desc"></div>
+      </div>
+      <div class="stat-row"><span>الإجابات الصحيحة</span><span class="badge badge-green" id="r-correct"></span></div>
+      <div class="stat-row"><span>الإجابات الخاطئة</span><span class="badge badge-sky" id="r-wrong"></span></div>
+      <div class="stat-row"><span>الوقت المستغرق</span><span class="badge badge-gold" id="r-time"></span></div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="section-title">نقاط القوة 💪</div>
+      <div id="r-strengths"></div>
+      <div class="section-title">تحتاج تدريباً 📝</div>
+      <div id="r-weaknesses"></div>
+    </div>
+    <button class="btn btn-gold" onclick="startGame()">ابدأ اللعبة من مستواك 🚀</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div style="width:100%;max-width:650px">
+    <div class="top-bar">
+      <div class="score-chip">⭐ <span id="g-score">0</span></div>
+      <div style="text-align:center">
+        <div style="font-size:.8rem;color:var(--text2)" id="g-level-label"></div>
+        <div style="font-size:.85rem;font-weight:700;color:var(--text)" id="g-stage-label"></div>
+      </div>
+      <div class="timer-ring">
+        <svg width="70" height="70" viewBox="0 0 70 70">
+          <circle cx="35" cy="35" r="30" fill="none" stroke="#D6E6F7" stroke-width="6"/>
+          <circle id="g-timer-arc" cx="35" cy="35" r="30" fill="none" stroke="#D4A017" stroke-width="6" stroke-dasharray="188.5" stroke-dashoffset="0" stroke-linecap="round"/>
+        </svg>
+        <span class="timer-num" id="g-timer-num">20</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="g-progress" style="width:0%"></div></div>
+    <div class="card" id="g-card">
+      <div class="q-type-label" id="g-q-type"></div>
+      <div class="word-display" id="g-word"></div>
+      <div id="g-input-area"></div>
+    </div>
+    <div style="display:flex;gap:.7rem;margin-top:.8rem">
+      <button class="btn btn-sm" style="background:#fff;border:1.5px solid var(--border);color:var(--text2);flex:1;font-family:Tajawal,sans-serif" onclick="skipQ()">تخطي ⏭</button>
+      <button class="btn btn-sm" style="background:#fff;border:1.5px solid var(--border);color:var(--text2);flex:1;font-family:Tajawal,sans-serif" onclick="confirmEndGame()">إنهاء 🏁</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-final">
+  <div style="width:100%;max-width:550px">
+    <div class="logo" style="font-size:1.8rem">🏆 نتيجة اللعبة</div>
+    <div class="subtitle" id="final-player"></div>
+    <div class="card" style="margin-bottom:1rem;text-align:center">
+      <div class="stars" id="final-stars"></div>
+      <div style="font-size:2.5rem;font-weight:900;color:var(--gold)" id="final-score"></div>
+      <div style="font-size:.9rem;color:var(--text2);margin-top:.3rem">نقطة</div>
+      <div class="level-badge" id="final-level" style="margin-top:.8rem"></div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="stat-row"><span>إجمالي الأسئلة</span><span class="badge badge-sky" id="f-total"></span></div>
+      <div class="stat-row"><span>الإجابات الصحيحة</span><span class="badge badge-green" id="f-correct"></span></div>
+      <div class="stat-row"><span>أعلى مستوى وصلته</span><span class="badge badge-gold" id="f-level"></span></div>
+    </div>
+    <div class="card" style="margin-bottom:1rem" id="final-qa-review"></div>
+    <div style="display:flex;gap:.8rem">
+      <button class="btn btn-primary" onclick="playAgain()" style="flex:1">العب مجدداً 🔄</button>
+      <button class="btn btn-gold" onclick="goLogin()" style="flex:1">طالب جديد 👤</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const HARAKAT={fatha:'َ',damma:'ُ',kasra:'ِ'};
+const HARAKAT_NAMES={fatha:'الفتحة',damma:'الضمة',kasra:'الكسرة'};
+const HARAKAT_FULL={fatha:'فتحة',damma:'ضمة',kasra:'كسرة'};
+const WORDS_DB=[
+  {word:'كتب',letters:['ك','ت','ب'],haraka:'fatha',full:'كَتَبَ'},{word:'علم',letters:['ع','ل','م'],haraka:'fatha',full:'عَلَمَ'},
+  {word:'قلم',letters:['ق','ل','م'],haraka:'fatha',full:'قَلَمَ'},{word:'ولد',letters:['و','ل','د'],haraka:'fatha',full:'وَلَدَ'},
+  {word:'شجر',letters:['ش','ج','ر'],haraka:'fatha',full:'شَجَرَ'},{word:'سمك',letters:['س','م','ك'],haraka:'fatha',full:'سَمَكَ'},
+  {word:'مدن',letters:['م','د','ن'],haraka:'damma',full:'مُدُنٌ'},{word:'كتب',letters:['ك','ت','ب'],haraka:'damma',full:'كُتُبٌ'},
+  {word:'درس',letters:['د','ر','س'],haraka:'damma',full:'دُرُسٌ'},{word:'علم',letters:['ع','ل','م'],haraka:'damma',full:'عُلُمٌ'},
+  {word:'حجر',letters:['ح','ج','ر'],haraka:'damma',full:'حُجُرٌ'},{word:'سبل',letters:['س','ب','ل'],haraka:'damma',full:'سُبُلٌ'},
+  {word:'نعم',letters:['ن','ع','م'],haraka:'kasra',full:'نِعَمٌ'},{word:'علم',letters:['ع','ل','م'],haraka:'kasra',full:'عِلْمٌ'},
+  {word:'حكم',letters:['ح','ك','م'],haraka:'kasra',full:'حِكَمٌ'},{word:'صور',letters:['ص','و','ر'],haraka:'kasra',full:'صِوَرٌ'},
+  {word:'قصص',letters:['ق','ص','ص'],haraka:'kasra',full:'قِصَصٌ'},{word:'كتب',letters:['ك','ت','ب'],haraka:'kasra',full:'كِتَبٌ'},
+];
+function randFrom(a){return a[Math.floor(Math.random()*a.length)];}
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+let player={name:'',grade:'',level:1,score:0};
+let assessData={questions:[],answers:[],correct:0,wrong:0,startTime:0,qIdx:0};
+let gameData={questions:[],qIdx:0,score:0,correct:0,wrong:0,log:[]};
+let timerInterval=null,timerLeft=0;
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function clearTimer(){if(timerInterval)clearInterval(timerInterval);timerInterval=null;}
+function startAssessment(){
+  const name=document.getElementById('inp-name').value.trim();
+  const grade=document.getElementById('inp-grade').value;
+  if(!name||!grade){alert('من فضلك اكتب اسمك واختر صفك');return;}
+  player.name=name;player.grade=grade;
+  assessData={questions:[],answers:[],correct:0,wrong:0,startTime:Date.now(),qIdx:0};
+  let pool=shuffle(WORDS_DB).slice(0,10);
+  const types=['identify_haraka','name_haraka','find_word_haraka'];
+  assessData.questions=pool.map((w,i)=>({word:w,type:types[i%3]}));
+  show('screen-assess');runAssessQ();
+}
+function runAssessQ(){
+  clearTimer();
+  const q=assessData.questions[assessData.qIdx];
+  document.getElementById('assess-progress').style.width=`${(assessData.qIdx/assessData.questions.length)*100}%`;
+  document.getElementById('assess-counter').textContent=`السؤال ${assessData.qIdx+1} من ${assessData.questions.length}`;
+  renderQuestion(q,'assess-q-type','assess-word','assess-options',true);
+  startTimer('assess-timer-arc','assess-timer-num',15,()=>assessAnswer(null));
+}
+function assessAnswer(val){
+  clearTimer();
+  const q=assessData.questions[assessData.qIdx];
+  const correct=getCorrectAnswer(q);
+  const ok=(val===correct);
+  assessData.answers.push({q,val,correct:ok});
+  if(ok)assessData.correct++;else assessData.wrong++;
+  if(val!==null){
+    document.querySelectorAll('#assess-options .option-btn').forEach(b=>{
+      if(b.dataset.val===correct)b.classList.add('correct');
+      else if(b.dataset.val===val)b.classList.add('wrong');
+      b.disabled=true;
+    });
+  }
+  setTimeout(()=>{assessData.qIdx++;assessData.qIdx>=assessData.questions.length?showAssessResult():runAssessQ();},val?900:300);
+}
+function getCorrectAnswer(q){
+  if(q.type==='identify_haraka')return q.word.haraka;
+  if(q.type==='name_haraka')return HARAKAT_FULL[q.word.haraka];
+  if(q.type==='find_word_haraka')return q.word.full;
+  return '';
+}
+function renderQuestion(q,typeEl,wordEl,optionsEl,isAssess){
+  const w=q.word;
+  document.getElementById(typeEl).textContent=q.type==='identify_haraka'?'ما نوع الحركة على هذه الكلمة؟':q.type==='name_haraka'?'ما اسم هذه الحركة؟':'اختر الكلمة المكتوبة صحيحاً بالحركات';
+  if(q.type==='identify_haraka')document.getElementById(wordEl).innerHTML=`<span>${w.full}</span>`;
+  else if(q.type==='name_haraka')document.getElementById(wordEl).innerHTML=`<span style="font-size:3rem">${HARAKAT[w.haraka]}</span>`;
+  else document.getElementById(wordEl).innerHTML=`<span>${w.word}</span>`;
+  let opts;
+  if(q.type==='identify_haraka')opts=shuffle(['fatha','damma','kasra']).map(h=>`<button class="option-btn" data-val="${h}" onclick="handleOpt(this,'${h}',${isAssess})">${HARAKAT_NAMES[h]} ${HARAKAT[h]}</button>`);
+  else if(q.type==='name_haraka')opts=shuffle(Object.values(HARAKAT_FULL)).map(v=>`<button class="option-btn" data-val="${v}" onclick="handleOpt(this,'${v}',${isAssess})">${v}</button>`);
+  else{let wrongs=shuffle(WORDS_DB.filter(x=>x.word!==w.word)).slice(0,3).map(x=>x.full);opts=shuffle([w.full,...wrongs]).map(v=>`<button class="option-btn" data-val="${v}" onclick="handleOpt(this,\`${v}\`,${isAssess})">${v}</button>`);}
+  document.getElementById(optionsEl).innerHTML=opts.join('');
+}
+function handleOpt(btn,val,isAssess){isAssess?assessAnswer(val):gameAnswer(val);}
+function startTimer(arcId,numId,dur,onEnd){
+  timerLeft=dur;
+  const arc=document.getElementById(arcId),num=document.getElementById(numId),circ=188.5;
+  arc.style.stroke='#1976D2';
+  function upd(){
+    arc.style.strokeDashoffset=circ*(1-timerLeft/dur);
+    num.textContent=timerLeft;
+    num.className='timer-num'+(timerLeft<=5?' danger':timerLeft<=8?' warn':'');
+    if(timerLeft<=5)arc.style.stroke='#E24B4A';else if(timerLeft<=8)arc.style.stroke='#E65100';
+  }
+  upd();
+  timerInterval=setInterval(()=>{timerLeft--;upd();if(timerLeft<=0){clearTimer();onEnd();}},1000);
+}
+function showAssessResult(){
+  clearTimer();
+  const c=assessData.correct,t=assessData.questions.length,pct=c/t;
+  let level,stars,badge,desc,color;
+  if(pct>=0.8){level=3;stars='⭐⭐⭐';badge='متقدم';desc='أحسنت! ستبدأ من المستوى المتقدم';color='#B8860B';}
+  else if(pct>=0.5){level=2;stars='⭐⭐';badge='متوسط';desc='جيد! ستبدأ من المستوى المتوسط';color='#1565C0';}
+  else{level=1;stars='⭐';badge='مبتدئ';desc='لا بأس! ستبدأ من الأساسيات';color='#2E7D32';}
+  player.level=level;
+  document.getElementById('result-name').textContent=`مرحباً ${player.name}!`;
+  document.getElementById('result-grade').textContent=player.grade;
+  document.getElementById('result-stars').textContent=stars;
+  document.getElementById('result-level-badge').textContent=`المستوى: ${badge}`;
+  document.getElementById('result-level-badge').style.cssText=`background:#EEF4FB;color:${color};border:2px solid ${color};padding:.4rem 1.5rem;border-radius:999px;font-size:1.1rem;font-weight:700`;
+  document.getElementById('result-level-desc').textContent=desc;
+  document.getElementById('r-correct').textContent=`${c} / ${t}`;
+  document.getElementById('r-wrong').textContent=`${t-c}`;
+  document.getElementById('r-time').textContent=`${Math.round((Date.now()-assessData.startTime)/1000)} ثانية`;
+  const hs={fatha:{c:0,t:0},damma:{c:0,t:0},kasra:{c:0,t:0}};
+  assessData.answers.forEach(a=>{const h=a.q.word.haraka;hs[h].t++;if(a.correct)hs[h].c++;});
+  const str=[],wk=[];
+  Object.entries(hs).forEach(([k,v])=>{if(v.t===0)return;(v.c/v.t>=0.6?str:wk).push(HARAKAT_NAMES[k]);});
+  document.getElementById('r-strengths').innerHTML=str.length?str.map(s=>`<span class="badge badge-green" style="margin:.2rem">${s}</span>`).join(''):'<span style="color:var(--text2);font-size:.9rem">لا تزال تحتاج مراجعة</span>';
+  document.getElementById('r-weaknesses').innerHTML=wk.length?wk.map(w=>`<span class="badge badge-sky" style="margin:.2rem">${w}</span>`).join(''):'<span style="color:var(--text2);font-size:.9rem">ممتاز! لا ضعف واضح</span>';
+  show('screen-result');
+}
+function buildGameQuestions(level){
+  const pool=shuffle(WORDS_DB);
+  const types=level===1?['identify_haraka','name_haraka']:level===2?['identify_haraka','name_haraka','find_word_haraka']:['identify_haraka','name_haraka','find_word_haraka','synthesis'];
+  return pool.slice(0,12).map((w,i)=>({word:w,type:types[i%types.length]}));
+}
+function startGame(){
+  show('screen-game');
+  gameData={questions:buildGameQuestions(player.level),qIdx:0,score:0,correct:0,wrong:0,log:[]};
+  runGameQ();
+}
+function runGameQ(){
+  clearTimer();
+  const q=gameData.questions[gameData.qIdx];
+  const lvlNames={1:'مبتدئ',2:'متوسط',3:'متقدم'};
+  document.getElementById('g-score').textContent=gameData.score;
+  document.getElementById('g-level-label').textContent=`المستوى: ${lvlNames[player.level]}`;
+  document.getElementById('g-stage-label').textContent=`السؤال ${gameData.qIdx+1} / ${gameData.questions.length}`;
+  document.getElementById('g-progress').style.width=`${(gameData.qIdx/gameData.questions.length)*100}%`;
+  if(q.type==='synthesis'){
+    document.getElementById('g-q-type').textContent='رتّب الحروف لتكوين الكلمة الصحيحة مع حركة '+HARAKAT_NAMES[q.word.haraka];
+    document.getElementById('g-word').innerHTML='';
+    const shuffled=shuffle([...q.word.letters]);
+    document.getElementById('g-input-area').innerHTML=`
+      <div class="letter-chips" id="chip-area">${shuffled.map((l,i)=>`<div class="letter-chip" id="chip-${i}" data-letter="${l}" onclick="pickLetter(this)">${l}</div>`).join('')}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.5rem 0">
+        <input class="synthesis-input" id="syn-input" maxlength="6" readonly placeholder="اضغط على الحروف">
+        <button class="btn btn-sm btn-red" onclick="clearSyn()">مسح</button>
+      </div>
+      <button class="btn btn-gold" onclick="submitSynthesis()">تحقق ✓</button>`;
+    window._synWord='';
+    startTimer('g-timer-arc','g-timer-num',25,()=>gameAnswer(null));
+  } else {
+    document.getElementById('g-input-area').innerHTML='<div class="options-grid" id="g-options"></div>';
+    renderQuestion(q,'g-q-type','g-word','g-options',false);
+    startTimer('g-timer-arc','g-timer-num',player.level===1?20:15,()=>gameAnswer(null));
+  }
+}
+function pickLetter(el){if(el.classList.contains('used'))return;window._synWord+=el.dataset.letter;document.getElementById('syn-input').value=window._synWord;el.classList.add('used');}
+function clearSyn(){window._synWord='';document.getElementById('syn-input').value='';document.querySelectorAll('.letter-chip').forEach(c=>c.classList.remove('used'));}
+function submitSynthesis(){const q=gameData.questions[gameData.qIdx];gameAnswer(window._synWord===q.word.word?q.word.word:window._synWord);}
+function gameAnswer(val){
+  clearTimer();
+  const q=gameData.questions[gameData.qIdx];
+  const correct=getCorrectAnswer(q);
+  const ok=q.type==='synthesis'?(val===q.word.word):(val===correct);
+  gameData.log.push({q,val,isCorrect:ok,correct});
+  if(ok){gameData.correct++;const bonus=player.level===3?15:player.level===2?10:7;gameData.score+=bonus+(timerLeft>10?3:0);showFeedback('صحيح! ✓','correct');}
+  else{gameData.wrong++;showFeedback(val?'خطأ ✗':'انتهى الوقت ⏱','wrong');}
+  if(val!==null&&q.type!=='synthesis'){
+    document.querySelectorAll('#g-options .option-btn').forEach(b=>{
+      if(b.dataset.val===correct)b.classList.add('correct');else if(b.dataset.val===val)b.classList.add('wrong');b.disabled=true;
+    });
+  }
+  document.getElementById('g-score').textContent=gameData.score;
+  setTimeout(()=>{gameData.qIdx++;gameData.qIdx>=gameData.questions.length?checkLevelUp():runGameQ();},ok?800:1000);
+}
+function showFeedback(msg,cls){const el=document.createElement('div');el.className=`feedback-overlay ${cls}`;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1000);}
+function checkLevelUp(){const pct=gameData.correct/gameData.questions.length;if(pct>=0.75&&player.level<3){player.level++;showLevelUpMsg();}else{showFinalResult();}}
+function showLevelUpMsg(){
+  const lvlNames={2:'المتوسط',3:'المتقدم'};
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;inset:0;background:rgba(21,101,192,.82);display:flex;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:1rem;';
+  el.innerHTML=`<div style="font-size:3rem">🎉</div><div style="font-size:1.8rem;font-weight:900;color:#fff">انتقلت إلى المستوى ${lvlNames[player.level]}!</div><div style="color:#DCEEFF">استعد للتحدي القادم</div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.remove();gameData={questions:buildGameQuestions(player.level),qIdx:0,score:gameData.score,correct:0,wrong:0,log:gameData.log};runGameQ();},2200);
+}
+function showFinalResult(){
+  clearTimer();
+  const total=gameData.log.length,correct=gameData.log.filter(x=>x.isCorrect).length,pct=correct/total;
+  const stars=pct>=0.8?'⭐⭐⭐':pct>=0.5?'⭐⭐':'⭐';
+  const lvlNames={1:'مبتدئ',2:'متوسط',3:'متقدم'};
+  document.getElementById('final-player').textContent=`${player.name} | ${player.grade}`;
+  document.getElementById('final-stars').textContent=stars;
+  document.getElementById('final-score').textContent=gameData.score;
+  document.getElementById('final-level').textContent=`المستوى: ${lvlNames[player.level]}`;
+  document.getElementById('final-level').style.cssText='background:#FFF3CD;color:#7a5c00;border:2px solid #D4A017;padding:.35rem 1.2rem;border-radius:999px;font-size:1rem;font-weight:700';
+  document.getElementById('f-total').textContent=total;
+  document.getElementById('f-correct').textContent=`${correct} / ${total}`;
+  document.getElementById('f-level').textContent=lvlNames[player.level];
+  document.getElementById('final-qa-review').innerHTML='<div class="section-title">مراجعة الأسئلة 📋</div>'+gameData.log.slice(-6).map(l=>`<div class="qa-row ${l.isCorrect?'qa-correct':'qa-wrong'}"><span>${l.q.word.full}</span><span style="font-size:.8rem;color:var(--text2)">${l.isCorrect?'✓ صحيح':'✗ خطأ'}</span></div>`).join('');
+  show('screen-final');
+}
+function skipQ(){gameAnswer(null);}
+function confirmEndGame(){if(confirm('هل تريد إنهاء اللعبة؟'))showFinalResult();}
+function playAgain(){startGame();}
+function goLogin(){clearTimer();show('screen-login');}
+</script>
